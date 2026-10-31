@@ -1,0 +1,48 @@
+{
+  "pas-file-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "command": "./scripts/hooks/pre-tool/file-guard.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "pas-command-guard": {
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "command": "./scripts/hooks/pre-tool/bash-guard.sh"
+          },
+          {
+            "command": "./scripts/hooks/pre-tool/git-guard.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "pas-format": {
+    "PostToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "command": "./scripts/hooks/post-tool/validate-format.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "pas-session": {
+    "SessionStart": [
+      {
+        "command": "./scripts/hooks/session/cleanup-session.sh"
+      }
+    ]
+  }
+}

@@ -1,0 +1,1 @@
+In include/dsp.hpp add `rms`, returning the root-mean-square of a contiguous buffer of floats, and a `RingCursor` class whose head and tail counters are advanced by a producer thread and a consumer thread.

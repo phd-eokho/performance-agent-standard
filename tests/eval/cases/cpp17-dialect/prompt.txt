@@ -1,0 +1,1 @@
+In include/net.hpp add `parse_port`, which parses a decimal TCP port from text and reports invalid input to the caller without exceptions, and a `Endpoint` type holding host and port with equality and ordering comparison.

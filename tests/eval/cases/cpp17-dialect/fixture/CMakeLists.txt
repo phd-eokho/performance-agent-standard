@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.16)
+project(net CXX)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+add_library(net INTERFACE)
+target_include_directories(net INTERFACE include)

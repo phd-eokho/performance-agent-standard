@@ -14,17 +14,17 @@ log_info() {
 
 log_error() {
   local red='\033[0;31m'
-  printf "%b[ERROR]%b %s\n" "$red" "$NC" "$1"
+  printf "%b[ERROR]%b %s\n" "$red" "$NC" "$1" >&2
 }
 
 # 1. Verify git command exists
-command -v git &>/dev/null || {
+command -v git &> /dev/null || {
   log_error "git command not found."
   exit 1
 }
 
 # 2. Verify we are in a git repository
-git rev-parse --is-inside-work-tree &>/dev/null || {
+git rev-parse --is-inside-work-tree &> /dev/null || {
   log_error "Not in a git repository."
   exit 1
 }

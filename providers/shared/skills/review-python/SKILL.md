@@ -1,27 +1,16 @@
 ---
 ---
 
-# Python Code Review Skill
+# Python Code Review
 
-Def: Purpose → Execute hierarchical code review for Python source files against registered standards.
+Arguments: `[target]` (optional) is a file, directory, or git diff range; default is uncommitted changes.
 
-Section: Invocation Parameters
-
-- `[target]`: Optional. Target file, directory, or git diff range. Defaults to uncommitted changes or workspace.
-
-Section: Execution Flow
-
-Step: 1. Standards Resolution:
-- Rule: HierarchicalReadingSequence: Enforce sequential reading of registered standard rules before code inspection:
-  1. `30-code-simplicity`
-  2. `31-lang-standard-common`
-  3. `51-lang-standard-python`
-
-Step: 2. Target Scope Resolution:
-- Rule: TargetFilter: Resolve review targets from `[target]` (or uncommitted git changes); filter strictly to Python extensions (`*.py`).
-
-Step: 3. Review Execution && Report Generation:
-- Rule: ReportStructure: Evaluate code strictly against the loaded standards and format report:
-  1. **Summary**: Overall quality and conformance assessment.
-  2. **Violations && Findings**: Itemized list of standard violations with exact line references (`file:///path/to/file#L1-L10`).
-  3. **Surgical Recommendations**: Minimal, copy-paste ready code refactoring snippets.
+1. Read these standards, general to specific (a narrower-scope file overrides a broader one):
+   - `{{RULES_DIR}}/code.md`
+   - `{{RULES_DIR}}/python.md`
+2. Resolve targets from `[target]` (or uncommitted git changes) and keep only `*.py` files.
+3. Report:
+   1. **Summary**: overall conformance.
+   2. **Violations**: each with `path:line`, the violated standard line, and why it matters here.
+   3. **Simplifications**: tag each `delete:` (dead code), `stdlib:` (dependency replaceable by the standard library), `native:` (library replaceable by a platform built-in), `yagni:` (speculative abstraction or single-caller wrapper), or `shrink:` (logic expressible with simpler primitives); end with `net: -N lines, -M deps` or `Lean already.`
+   4. **Fixes**: minimal, copy-paste-ready snippets. Skip style preferences the standards do not cover.

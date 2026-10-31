@@ -20,9 +20,9 @@ Req: Optimized Rule Generation: Compile patterns efficiently while maintaining e
 - Rule: Native Clean Prefix: The compiler MUST output clean beginning command prefixes and compressed character tries without artificial regex prefix anchors (such as `^` or `(?:^|\s)`) or suffix regex matchers. Agent platform engines evaluate commands natively from invocation start.
 - Rule: Character Compression: The compiler MUST dynamically generate character-level shared prefixes using a trie algorithm for commands sharing a base executable to optimize evaluation performance.
 - Rule: Defense-in-Depth Layering: Security against destructive operations or dangerous command pipelines MUST be enforced through `PreToolUse` lifecycle hook guards (e.g., `bash-guard.sh`) and explicit `deny` layer precedence, maintaining clean, human-readable configurations in `settings.json`.
-- Rule: Cross-Provider Compatibility: The compiler MUST map outputs natively, generating clean prefix directives for Antigravity (`command(...)`), Codex, and Gemini CLI, while generating beginning-anchored Bash Globs (`Bash(cmd)`, `Bash(cmd *)`) for Claude Code.
+- Rule: Cross-Provider Compatibility: The compiler MUST map outputs natively, generating clean prefix directives for Antigravity (`command(...)`), while generating beginning-anchored Bash Globs (`Bash(cmd)`, `Bash(cmd *)`) for Claude Code.
 
 Section: Usage
 Req: Standardized Deployment: Provide uniform execution targets for agent integration.
-- Rule: JSON Block Generation: Execute `python3 scripts/compiler.py --provider <provider_name>` (e.g., `antigravity`, `gemini`, `claude`, `codex`) to generate the raw JSON configuration block for that specific platform.
+- Rule: JSON Block Generation: Execute `python3 {{SKILL_DIR}}/scripts/compiler.py --source {{SKILL_DIR}}/whitelist.json --provider <provider_name>` (`antigravity` or `claude`) to generate the raw JSON configuration block for that specific platform.
 - Rule: Agent-Driven Merging: The compiler MUST NOT overwrite user configuration files directly. The executing AI agent MUST capture the JSON output, evaluate it against existing user settings (e.g. keeping existing manual additions untouched), and use its own file-editing tools to surgically merge the new rules into the global or local `settings.json`.

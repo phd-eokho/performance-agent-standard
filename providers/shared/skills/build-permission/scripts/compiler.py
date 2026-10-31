@@ -40,45 +40,13 @@ def compile_layer(commands: list[str]) -> Generator[str, None, None]:
 class ProviderConfigs:
     claude: dict[str, Any]
     antigravity: dict[str, Any]
-    gemini: dict[str, Any]
-    codex: dict[str, Any]
 
-def format_rule_for_agent(agent: str, decision: str, regexes: list[str]) -> list[Any]:
+def format_antigravity_rules(regexes: list[str]) -> list[str]:
     """!
-    @brief Formats compiled regex rules into provider-specific configuration formats.
-
-    @details
-    - **codex**: Uses physical boundary hooks (sandbox_mode) mapping to Regex() filters.
-      @see https://platform.openai.com/docs/codex
-    - **antigravity**: Employs a terminal jailing triple-list architecture (deny, ask, allow), matching command() directives.
-      @see https://antigravity.google/docs
-    - **gemini**: Implements a policy engine with integer priorities (lower number = higher priority) and decisions ('allow', 'deny', 'ask_user').
-      @see https://ai.google.dev/docs/gemini_cli
-
-    @param agent The target AI agent provider.
-    @param decision The permission layer being compiled (allow, deny, ask).
-    @param regexes A list of highly-compacted regular expressions.
-    @return A list of formatted configuration objects native to the provider.
+    @brief Formats compiled regex rules as Antigravity `command()` directives.
+    @see https://antigravity.google/docs
     """
-    match agent:
-        case "codex":
-            return [f"Regex({r})" for r in regexes]
-        case "antigravity":
-            return [f"command({r})" for r in regexes]
-        case "gemini":
-            priority = 200 if decision == "allow" else 900
-            gemini_decision = "ask_user" if decision == "ask" else decision
-            return [
-                {
-                    "toolName": "run_shell_command",
-                    "commandRegex": r,
-                    "decision": gemini_decision,
-                    "priority": priority
-                }
-                for r in regexes
-            ]
-        case _:
-            raise ValueError(f"Unknown agent: {agent}")
+    return [f"command({r})" for r in regexes]
 
 def generate_globs(commands: list[str]) -> list[str]:
     globs = []
@@ -110,23 +78,12 @@ def generate_agent_configs(layers: dict[str, list[str]]) -> ProviderConfigs:
                 "ask": generate_globs(ask_raw)
             }
         },
-        codex={
-            "hooks": {
-                "PreToolUse": {
-                    "allow_patterns": format_rule_for_agent("codex", "allow", combined_allow_regexes),
-                    "deny_patterns": format_rule_for_agent("codex", "deny", deny_regexes)
-                }
-            }
-        },
         antigravity={
             "permissions": {
-                "allow": format_rule_for_agent("antigravity", "allow", combined_allow_regexes),
-                "deny": format_rule_for_agent("antigravity", "deny", deny_regexes),
-                "ask": format_rule_for_agent("antigravity", "ask", ask_regexes)
+                "allow": format_antigravity_rules(combined_allow_regexes),
+                "deny": format_antigravity_rules(deny_regexes),
+                "ask": format_antigravity_rules(ask_regexes)
             }
-        },
-        gemini={
-            "rules": format_rule_for_agent("gemini", "allow", combined_allow_regexes) + format_rule_for_agent("gemini", "ask", ask_regexes) + format_rule_for_agent("gemini", "deny", deny_regexes)
         }
     )
 
@@ -144,9 +101,7 @@ def run(source_path: str, provider: str | None = None) -> None:
 
     out_dict = {
         "claude": configs.claude,
-        "codex": configs.codex,
-        "antigravity": configs.antigravity,
-        "gemini": configs.gemini
+        "antigravity": configs.antigravity
     }
 
     if provider:
@@ -160,7 +115,7 @@ def run(source_path: str, provider: str | None = None) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Compile cross-agent permissions.")
     parser.add_argument("--source", default="whitelist.json", help="Source whitelist JSON")
-    parser.add_argument("--provider", help="Specific provider to output (e.g., claude, codex, antigravity, gemini)")
+    parser.add_argument("--provider", help="Specific provider to output (claude, antigravity)")
     args = parser.parse_args()
 
     run(args.source, args.provider)

@@ -1,0 +1,1 @@
+In src/lib.rs add `window_start(pos, radius)` returning the first index of a window of `radius` samples before `pos` (never below 0), and a `count_words` function that counts whitespace-separated words in a text. Add a `min_sample` method on `Samples` returning the smallest value.

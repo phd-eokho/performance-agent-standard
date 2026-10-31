@@ -1,0 +1,10 @@
+{
+  "name": "performance-agent-standards",
+  "version": "__VERSION__",
+  "description": "Performance-oriented coding standards, safety guard hooks, and review skills.",
+  "author": {
+    "name": "DeokhoKim"
+  },
+  "repository": "https://github.com/DeokhoKim/performance-agent-standard",
+  "license": "MIT"
+}

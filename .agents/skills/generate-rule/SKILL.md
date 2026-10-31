@@ -1,6 +1,6 @@
 ---
 name: generate-rule
-description: "Generates concise, clarified, and machine-enforceable rules across a set of files by spawning multi-directional subagents to produce candidate tries (default: 2 per direction), minimizing cross-file redundancies, enforcing structural consistency, and synthesizing champion HDMD rules."
+description: "Generates concise, clarified, and machine-enforceable rules across a set of files by spawning multi-directional subagents to produce candidate tries (default: 2 per direction), minimizing cross-file redundancies, enforcing structural consistency, and synthesizing champion rules in the repository rule style."
 disable-model-invocation: true
 context: fork
 ---
@@ -21,20 +21,18 @@ Step: 1. Target Inspection & Cross-File Constraint Mapping:
 - Rule: Multi-File Context Extraction: Inspect each file in `[target-files]` (or target directory/hierarchy if new) to autonomously extract individual domain scopes, existing constraints, tool bindings, and structural relationships.
 - Rule: Cross-File Redundancy & Conflict Detection: Build an aggregate cross-file constraint matrix. Identify duplicated rules, overlapping definitions, shared abstractions, and semantic inconsistencies across files.
 - Rule: Hierarchical Layering & Checklist Compilation: Partition constraints into universal common invariants vs specialized domain expansions (enforcing non-redundant hierarchical supplementation). Merge with `[additional-constraints]` into an explicit numbered checklist ($C_1, C_2, \dots, C_n$) mapping constraints to their designated target files. Every candidate rule set MUST achieve 100% Zero Context Loss against this checklist.
-- Rule: Tag Standard Verification: Enforce High-Density Markdown (HDMD) structure (`# Title`, `Section: Name`, `Req: Goal`, `- Rule: RuleName: Constraint`), ensuring all sub-rules are explicitly named with PascalCase descriptors across all target files.
-- Rule: Imperative Constraint Precision: Enforce unambiguous imperative action verbs (`Enforce`, `Prohibit`, `Prefix`, `Isolate`, `Require`) in rule directives; prohibit passive or advisory phrasing (`Prefer`, `Consider`, `Should`).
-- Rule: Normative Modal Enforcement: Candidate rules MUST utilize standard RFC-2119/ISO modal verbs (`MUST`/`SHALL` for mandatory requirements, `MUST NOT`/`SHALL NOT` for prohibitions, `MAY` for optional features) to establish unambiguous conformance boundaries.
-- Rule: Negative Prohibition: NEVER allow passive `- Explain:` blocks. Enforce "Prefer Rule Over Explain" by integrating reasoning directly into rule directives (`Enforce X to guarantee Y` / `Prohibit X to prevent Z`).
+- Rule: Style Verification: Candidates follow the Rule writing section of `.agents/GEMINI.md`: one imperative bullet per rule with its condition, plain words, no tags, rule IDs, rationale, or symbolic connectives, examples only where the rule is ambiguous without them.
+- Rule: No Cross-References: Candidates never name other rule files, tool names, or load orders; the platform loads rules by trigger.
 
 Step: 2. Multi-Direction Subagent Dispatch:
 - Rule: Configurable Multi-Try Execution: Concurrently invoke specialized subagents using `invoke_subagent` across 6 mutually exclusive, expandable design directions, instructing each subagent to produce exactly `[tries]` distinct candidate tries per target file (default: 2 tries per direction = 12 candidate tries per file):
-  1. Direction 1 (Axiomatic & Symbolic Logic): Compress constraints into atomic propositions and boolean invariants using symbolic operators (`&&`, `||`, `!`, `→`, `>`).
+  1. Direction 1 (Atomic Invariants): Compress constraints into the fewest atomic, condition-qualified imperatives.
   2. Direction 2 (Sequential Lifecycle Phasing): Structure rules along a chronological execution pipeline (Discovery/Pre-flight Gate → Transformation Gate → Verification/Commit Gate).
   3. Direction 3 (Normative Guardrails & Negative Fences): Enforce rigid RFC-2119 / ISO modals (`MUST NOT...; MUST...; SHALL NOT...`), assertion boundaries, anti-patterns, and anti-hallucination fences.
   4. Direction 4 (Algorithmic Procedures & Decision Matrices): Formulate rules as deterministic pseudocode blocks (`FUNCTION Resolve...`, `MATCH/CASE`), truth tables, and predicate decision matrices.
   5. Direction 5 (Interface Contracts & Pre/Post Conditions): Formulate rules as strict API-style specifications with explicit precondition assertions, input validation contracts, and postcondition verification guarantees.
   6. Direction 6 (Failure Modes & Resilient Fallbacks): Formulate rules centered on edge-case detection, recovery branching, graceful degradation, and exception-handling workflows.
-- Rule: Cross-File Harmonization Invariant: Subagents MUST ensure shared terminology, structural taxonomy, tag naming, and symbolic conventions are strictly consistent across all candidate files in the set.
+- Rule: Cross-File Harmonization Invariant: Subagents MUST ensure shared terminology and structure are strictly consistent across all candidate files in the set.
 - Rule: Full Granularity: Every try MUST contain the complete, ready-to-use markdown rule text with exact tool and parameter names in backticks.
 
 Step: 3. Multi-Dimensional Comparative Analysis:
@@ -42,14 +40,14 @@ Step: 3. Multi-Dimensional Comparative Analysis:
   1. **Token Economy & Cross-File Footprint**: Quantitative audit of line count, word count, character count, token compression ratio, and cross-file redundancy reduction vs baseline.
   2. **Constraint Coverage & Deduplication Audit**: 100% Zero Context Loss verification against the cross-file checklist created in Step 1, verifying zero duplicated constraints between common and specialized files.
   3. **Cross-File Cohesion & LLM Ergonomics**: Evaluate holistic coherence, consistent naming conventions across files, instruction-following sharpness, and absence of conversational padding.
-  4. **Tool-Action Grounding**: Verify exact tool names (`view_file`, `grep_search`, `replace_file_content`) and parameter flags.
-  5. **Cross-Platform Compatibility**: Validate native AST and Markdown parsing across Antigravity, Gemini CLI, Claude Code, and Codex.
+  4. **Behavioral Effect**: Run `tests/eval/run.sh --baseline` (agy flash) on cases covering the changed rules; prefer candidates that pass with the plugin and fail without it.
+  5. **Cross-Platform Compatibility**: Validate native AST and Markdown parsing across Antigravity (agy) and Claude Code.
 
 Step: 4. Final Champion Synthesis & Cross-File Harmonization:
-- Rule: Attribute Merging & Cross-File Alignment: Synthesize the highest-scoring qualities into champion rule sets for each target file, ensuring global structural symmetry, consistent HDMD tag hierarchies, and unified terminology across the entire file set.
+- Rule: Attribute Merging & Cross-File Alignment: Synthesize the highest-scoring qualities into champion rule sets for each target file, ensuring global structural symmetry, and unified terminology across the entire file set.
 - Rule: Cross-File Redundancy Elimination: Isolate shared invariants into common files and ensure specialized files contain non-redundant expansions without restating higher-level rules.
-- Rule: Context Window & Token Density Optimization: Eliminate conversational fluff, narrative explanations, duplicate tables, and redundant boilerplate while preserving 100% semantic constraints, enforcing symbolic density (`&&`, `||`, `!`, `→`) to maximize meaning per token.
-- Rule: Dead Code Elimination: Purge all vestigial or unreferenced `Def:` tags, redundant connectives, and narrative explanations across all generated files.
+- Rule: Context Window & Token Density Optimization: Eliminate conversational fluff, narrative explanations, duplicate tables, and redundant boilerplate while preserving 100% of semantic constraints.
+- Rule: Coverage Record: Update `docs/rule-coverage.md` for every moved, conditioned, corrected, or removed requirement.
 
 Step: 5. Authorization & Multi-File Application:
 - Rule: User Precedence Check: Present the cross-file comparative analysis, redundancy reduction metrics, and finalized champion rule sets to the user.
