@@ -14,7 +14,7 @@ Section: Invocation Parameters
 Section: Execution Flow
 
 Step: 1. Pre-flight Validation:
-- Run `scripts/pre-pr-check.sh [target]` (pass `[target]` only if specified).
+- Run `{{SKILL_DIR}}/scripts/pre-pr-check.sh [target]` (pass `[target]` only if specified).
 - Rule: Agent MUST NOT run any manual git/gh inspection commands (e.g., `git log`, `git diff`, `git branch`, `gh repo view`). Rely entirely on `pre-pr-check.sh` for all environment and context data.
 - Rule: If script exits non-zero → display stderr, suggest action, and stop.
 - Parse stdout as `KEY=value` pairs: `TARGET_BRANCH`, `RESOLVED_TARGET`, `CURRENT_BRANCH`, `IS_DETACHED`, `MATCHED_PR`, `IS_TRIVIAL`, `COMMITS_FILE`, `DIFF_FILE`, `DIFF_LINES`.

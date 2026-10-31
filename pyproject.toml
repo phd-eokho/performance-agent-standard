@@ -1,7 +1,7 @@
 [project]
 name = "performance-agent-standards"
 version = "0.0.1"
-description = "Google Antigravity, Claude Code, and Codex coding standards plugin"
+description = "Google Antigravity (agy) and Claude Code coding standards plugin"
 readme = "README.md"
 requires-python = ">=3.9"
 dependencies = []

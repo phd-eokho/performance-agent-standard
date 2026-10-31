@@ -12,7 +12,7 @@ Section: Invocation Parameters
 Section: Execution Flow
 
 Step: 1. Pre-flight Validation:
-- Run the pre-commit script `scripts/pre-commit-check.sh`.
+- Run the pre-commit script `{{SKILL_DIR}}/scripts/pre-commit-check.sh`.
 - Rule: Agent MUST NOT perform manual check commands (e.g., `git status`, `git diff`). Rely entirely on `pre-commit-check.sh`.
 - Rule: If `pre-commit-check.sh` fails (exit status > 0) → display output, suggest action, and stop execution immediately.
 - Parse stdout as `KEY=value` pairs: `STAGED_COUNT`, `STAGED_LINES`, `DIFF_FILE`.

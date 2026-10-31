@@ -19,3 +19,6 @@ dist/
 
 # uv lockfile
 uv.lock
+
+# Eval traces
+tests/eval/out/

@@ -1,0 +1,1 @@
+Write cleanup.sh: delete *.tmp files older than 7 days under the directory given as the first argument, logging each deletion and failing clearly when the argument is missing or not a directory.

@@ -1,0 +1,1 @@
+Create geo.py with a `Point` value type (x, y floats), a `translate(point, dx, dy)` function returning the moved point, and `parse_points(lines)` that yields points from "x,y" text lines, skipping malformed lines.

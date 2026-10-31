@@ -1,0 +1,48 @@
+# hook	expect(deny|allow)	payload (Claude `tool_input` and agy `toolCall.arguments` envelopes)
+git-guard	deny	{"tool_input":{"command":"git push --force origin main"}}
+git-guard	deny	{"tool_input":{"command":"cd repo && git push -uf origin x"}}
+git-guard	deny	{"toolCall":{"arguments":{"CommandLine":"git reset --hard HEAD~1"}}}
+git-guard	deny	{"tool_input":{"command":"git clean -fdx"}}
+git-guard	deny	{"tool_input":{"command":"git branch -D feature"}}
+git-guard	deny	{"tool_input":{"command":"git checkout -- ."}}
+git-guard	deny	{"tool_input":{"command":"git restore ."}}
+git-guard	deny	{"tool_input":{"command":"git stash drop"}}
+git-guard	deny	{"tool_input":{"command":"git commit -am 'x' --no-verify"}}
+git-guard	deny	{"tool_input":{"command":"git commit -an"}}
+git-guard	deny	{"tool_input":{"command":"FOO=1 git -C repo reset --merge"}}
+git-guard	allow	{"tool_input":{"command":"git commit -m \"re-run built-in tests\""}}
+git-guard	allow	{"tool_input":{"command":"git push origin feature-fix"}}
+git-guard	allow	{"tool_input":{"command":"git push -n origin main"}}
+git-guard	allow	{"tool_input":{"command":"git branch -d merged"}}
+git-guard	allow	{"tool_input":{"command":"git checkout ./src/main.rs"}}
+git-guard	allow	{"tool_input":{"command":"git log --oneline | grep -f patterns"}}
+git-guard	allow	{"tool_input":{"command":"git commit --amend --no-edit"}}
+git-guard	allow	{"tool_input":{"command":"git clean -n"}}
+bash-guard	deny	{"tool_input":{"command":"rm -rf /"}}
+bash-guard	deny	{"tool_input":{"command":"rm -r -f ~"}}
+bash-guard	deny	{"tool_input":{"command":"cd /x && rm -fr *"}}
+bash-guard	deny	{"tool_input":{"command":"sed -i 's/a/b/' f.txt"}}
+bash-guard	deny	{"tool_input":{"command":"perl -pi -e 's/a/b/' f"}}
+bash-guard	deny	{"tool_input":{"command":"gh api -X DELETE repos/o/r"}}
+bash-guard	deny	{"tool_input":{"command":"gh repo delete o/r"}}
+bash-guard	deny	{"tool_input":{"command":"dd if=/dev/zero of=/dev/sda"}}
+bash-guard	deny	{"tool_input":{"command":"sudo apt install x"}}
+bash-guard	deny	{"toolCall":{"arguments":{"CommandLine":"chmod -R 777 ."}}}
+bash-guard	allow	{"tool_input":{"command":"rm -rf ./build"}}
+bash-guard	allow	{"tool_input":{"command":"sed 's/a/b/' f | grep -i foo"}}
+bash-guard	allow	{"tool_input":{"command":"perl script.pl --input x"}}
+bash-guard	allow	{"tool_input":{"command":"git add README.md && make if=1"}}
+bash-guard	allow	{"tool_input":{"command":"gh api repos/o/r/pulls"}}
+bash-guard	allow	{"tool_input":{"command":"printf 'used ed once'"}}
+file-guard	deny	{"tool_input":{"file_path":"/w/.env"}}
+file-guard	deny	{"tool_input":{"file_path":"/w/.env.production"}}
+file-guard	deny	{"tool_input":{"file_path":"/w/certs/server.pem"}}
+file-guard	deny	{"tool_input":{"file_path":"/home/u/.ssh/id_ed25519"}}
+file-guard	deny	{"tool_input":{"file_path":"/w/Cargo.lock"}}
+file-guard	deny	{"toolCall":{"arguments":{"TargetFile":"/w/.git/config"}}}
+file-guard	deny	{"tool_input":{"file_path":"/w/infra/prod.tfstate"}}
+file-guard	allow	{"tool_input":{"file_path":"/w/.env.example"}}
+file-guard	allow	{"tool_input":{"file_path":"/w/src/keyboard.key.ts"}}
+file-guard	allow	{"tool_input":{"file_path":"/w/.github/workflows/ci.yml"}}
+file-guard	allow	{"tool_input":{"file_path":"/w/.gitignore"}}
+file-guard	allow	{"tool_input":{"file_path":"/w/src/main.rs"}}

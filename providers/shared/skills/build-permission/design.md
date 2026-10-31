@@ -34,8 +34,6 @@ Rather than injecting complex, fragile regex suffix constraints (such as `(?:\s+
 The compiler natively accommodates the parsing engines of four different agent platforms.
 
 - **Antigravity**: Utilizes clean `command(prefix)` and compressed token tries (e.g., `command(git (?:branch|log))`).
-- **Gemini CLI**: Maps decisions to `"allow"`, `"ask_user"`, and `"deny"` with priority scoring.
-- **Codex CLI**: Supports `PreToolUse` lifecycle hooks and sandbox guardrails.
 - **Claude Code**: The native `permissions.allow/deny/ask` arrays strictly utilize beginning-anchored **Bash Globs** (e.g., `Bash(git status)`, `Bash(git status *)`), omitting unanchored prefix wildcards (`* cmd`).
 
 ## 4. The Mutually Exclusive JSON Pattern
