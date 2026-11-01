@@ -31,5 +31,5 @@ Step: 3. Commit Message Generation:
   3. **Affected Areas**: Note which features, modules, or flows will be affected by these changes.
 
 Step: 4. Execution:
-- Rule: Execute `git commit -m "<message>"` immediately. No user confirmation required.
+- Rule: Execute the commit immediately; no user confirmation required. Pass the multi-line message via a quoted heredoc (`git commit -F - <<'EOF'`), never a multi-line `-m`.
   - Exception: If the commit fails due to pre-commit hook fixes, the agent may run `git add` ONLY on already-staged files to update their index state, then retry the commit once. No other files can be added.

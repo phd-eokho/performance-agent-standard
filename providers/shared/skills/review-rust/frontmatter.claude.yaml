@@ -1,5 +1,5 @@
 argument-hint: "[target]"
 arguments:
   - name: target
-    description: Target file, directory, or git diff to review. Defaults to git diff or current workspace.
+    description: Target file, directory, or git diff to review. Defaults to uncommitted changes.
 agent: general-purpose

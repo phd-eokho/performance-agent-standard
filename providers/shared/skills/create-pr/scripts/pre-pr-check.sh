@@ -75,18 +75,18 @@ if [[ -z "$target_branch" ]]; then
   fi
 fi
 
-# 5. Resolve target to a git ref (local branch preferred, remote tracking fallback)
-resolved_target="$target_branch"
-if ! git rev-parse --verify "$target_branch" &> /dev/null; then
-  git rev-parse --verify "origin/$target_branch" &> /dev/null || {
-    log_error "Target branch '$target_branch' could not be resolved locally or on origin."
+# 5. Resolve target to a git ref (freshly fetched remote preferred, local branch fallback)
+resolved_target="origin/$target_branch"
+if ! git rev-parse --verify --quiet "$resolved_target" &> /dev/null; then
+  git rev-parse --verify --quiet "$target_branch" &> /dev/null || {
+    log_error "Target branch '$target_branch' could not be resolved on origin or locally."
     exit 1
   }
-  resolved_target="origin/$target_branch"
+  resolved_target="$target_branch"
 fi
 
-# 6. Ensure there are commits to PR
-commit_count=$(git rev-list "${resolved_target}...HEAD" | wc -l)
+# 6. Ensure HEAD has commits of its own (two-dot: excludes commits only on the target)
+commit_count=$(git rev-list "${resolved_target}..HEAD" | wc -l)
 [[ "$commit_count" -eq 0 ]] && {
   log_error "No commits between '$resolved_target' and HEAD. Cannot create PR."
   exit 1
@@ -95,7 +95,7 @@ commit_count=$(git rev-list "${resolved_target}...HEAD" | wc -l)
 # 7. Classify git tree: trivial = linear history, no merge commits in range
 is_trivial="true"
 git merge-base --is-ancestor "$resolved_target" HEAD &> /dev/null || is_trivial="false"
-[[ $(git rev-list --merges "${resolved_target}...HEAD" | wc -l) -gt 0 ]] && is_trivial="false"
+[[ $(git rev-list --merges "${resolved_target}..HEAD" | wc -l) -gt 0 ]] && is_trivial="false"
 
 # 8. Detect detached HEAD
 current_branch=$(git symbolic-ref --short -q HEAD 2> /dev/null || true)
@@ -109,7 +109,7 @@ fi
 
 # 9. Write commits and diff to temp files (keeps stdout minimal for token efficiency)
 commits_file=$(mktemp /tmp/pr-commits-XXXXXX.txt)
-git log --no-merges "${resolved_target}...HEAD" > "$commits_file"
+git log --no-merges "${resolved_target}..HEAD" > "$commits_file"
 
 diff_file=$(mktemp /tmp/pr-diff-XXXXXX.patch)
 git diff "${resolved_target}...HEAD" > "$diff_file"

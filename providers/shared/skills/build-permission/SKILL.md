@@ -24,5 +24,5 @@ Req: Optimized Rule Generation: Compile patterns efficiently while maintaining e
 
 Section: Usage
 Req: Standardized Deployment: Provide uniform execution targets for agent integration.
-- Rule: JSON Block Generation: Execute `python3 {{SKILL_DIR}}/scripts/compiler.py --source {{SKILL_DIR}}/whitelist.json --provider <provider_name>` (`antigravity` or `claude`) to generate the raw JSON configuration block for that specific platform.
+- Rule: JSON Block Generation: Execute `uv run {{SKILL_DIR}}/scripts/compiler.py --source {{SKILL_DIR}}/whitelist.json --provider <provider_name>` (`antigravity` or `claude`) to generate the raw JSON configuration block for that specific platform. `uv run` installs `trieregex` from the script's inline metadata; never use bare `python3`.
 - Rule: Agent-Driven Merging: The compiler MUST NOT overwrite user configuration files directly. The executing AI agent MUST capture the JSON output, evaluate it against existing user settings (e.g. keeping existing manual additions untouched), and use its own file-editing tools to surgically merge the new rules into the global or local `settings.json`.
