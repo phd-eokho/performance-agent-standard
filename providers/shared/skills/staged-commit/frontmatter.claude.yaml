@@ -1,7 +1,5 @@
-argument-hint: "[target] [language]"
+argument-hint: "[language]"
 arguments:
-  - name: target
-    description: Optional target branch to compare staged changes/HEAD against. Defaults to the repository's default branch.
   - name: language
     description: Optional target language for the commit message. Defaults to Korean.
 agent: general-purpose
