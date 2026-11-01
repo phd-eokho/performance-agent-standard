@@ -20,15 +20,15 @@
 - Arithmetic on untrusted or computed values states its semantics: `checked_*`, `saturating_*`, or `wrapping_*`.
 - Identifiers and handles where zero means empty: `NonZeroU32`/`NonZeroU64`/`NonZeroUsize`.
 - Bit operations: `count_ones`, `leading_zeros`, `trailing_zeros`, `reverse_bits`.
-- Byte reinterpretation: `bytemuck` or `zerocopy` (`Pod`/`Zeroable`); `transmute` only with a size and alignment proof.
+- Byte reinterpretation: `bytemuck` or `zerocopy` (`Pod`/`Zeroable`) when already a dependency, else `from_ne_bytes`/`to_ne_bytes` or `align_to`; `transmute` only with a size and alignment proof.
 - SIMD loops: contiguous slices, loop-invariant bounds, no divergent branches; or `core::arch` intrinsics on aligned slices.
 
 ## Concurrency
 - Atomics use the weakest correct `Ordering`; `SeqCst` only when a total order across several atomics is required.
 - Spin-wait loops call `std::hint::spin_loop()`.
-- When a lock is required, use `parking_lot` locks (no poisoning); `RwLock` for read-heavy workloads.
-- Channels are bounded (`crossbeam_channel::bounded`, `tokio::sync::mpsc::channel`); never unbounded in production.
-- CPU-bound collection transforms: `rayon` (`par_iter`, `par_bridge`), not manual threads.
+- When a lock is required, use `parking_lot` locks (no poisoning) when already a dependency, else `std::sync::Mutex`; `RwLock` for read-heavy workloads.
+- Channels are bounded (`std::sync::mpsc::sync_channel`, or `crossbeam_channel::bounded`/`tokio::sync::mpsc::channel` when already a dependency); never unbounded in production.
+- CPU-bound collection transforms: `rayon` (`par_iter`, `par_bridge`) when already a dependency, else `std::thread::scope` over chunks; no detached manual threads.
 
 ## Traits and dispatch
 - Static dispatch (`impl Trait`, generics) by default; `dyn` only for heterogeneous collections or code-size limits.

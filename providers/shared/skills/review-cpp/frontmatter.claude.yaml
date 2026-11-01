@@ -1,7 +1,7 @@
 argument-hint: "[target] [standard]"
 arguments:
   - name: target
-    description: Target file, directory, or git diff to review. Defaults to git diff or current workspace.
+    description: Target file, directory, or git diff to review. Defaults to uncommitted changes.
   - name: standard
-    description: Target C++ standard (cpp17, cpp20, cpp23). Defaults to detected or modern baseline.
+    description: Target C++ standard (cpp17, cpp20, cpp23). Defaults to the build's CMAKE_CXX_STANDARD / -std=, else cpp17.
 agent: general-purpose

@@ -41,9 +41,13 @@ staged_count=$(git diff --cached --numstat | wc -l)
 
 log_info "${staged_count} file(s) staged for commit."
 diff_file=$(mktemp /tmp/commit-diff-XXXXXX.patch)
+trap 'rm -f "$diff_file"' EXIT
 git diff --cached > "$diff_file"
 staged_lines=$(wc -l < "$diff_file")
 
 printf "STAGED_COUNT=%s\n" "$staged_count"
 printf "STAGED_LINES=%s\n" "$staged_lines"
 printf "DIFF_FILE=%s\n" "$diff_file"
+
+# Preserve the diff file for the agent — disable cleanup trap
+trap - EXIT

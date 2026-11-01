@@ -1,4 +1,8 @@
-#!/usr/bin/env python3
+#!/usr/bin/env -S uv run --script
+# /// script
+# requires-python = ">=3.10"
+# dependencies = ["trieregex>=1.0.0"]
+# ///
 import json
 import sys
 import argparse
@@ -9,7 +13,7 @@ from typing import Any, Iterable, Generator
 try:
     from trieregex import TrieRegEx
 except ImportError:
-    print("Error: 'trieregex' is required to compress overlapping commands into optimized character-level regular expressions. Please install it using your system's package manager.")
+    print("Error: 'trieregex' is required to compress overlapping commands into optimized character-level regular expressions. Run this script with 'uv run' so its inline dependencies are installed.")
     sys.exit(1)
 
 def compile_layer(commands: list[str]) -> Generator[str, None, None]:

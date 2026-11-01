@@ -3,7 +3,7 @@
 
 # C++ Code Review
 
-Arguments: `[target]` (optional) is a file, directory, or git diff range; default is uncommitted changes. `[standard]` (optional) is `cpp17`, `cpp20`, or `cpp23`; default is the build's `CMAKE_CXX_STANDARD` / `-std=`, else C++17.
+Arguments: `[target]` (optional) is a file, directory, or git diff range; default is uncommitted changes. `[standard]` (optional) is `cpp17`, `cpp20`, or `cpp23`; default is the build's `CMAKE_CXX_STANDARD` / `-std=`, else C++17. Both are order-free: a `cpp17`/`cpp20`/`cpp23` value is `[standard]`; any other value is `[target]`.
 
 1. Read these standards, general to specific (a narrower-scope file overrides a broader one):
    - `{{RULES_DIR}}/code.md`

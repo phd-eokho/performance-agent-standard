@@ -5,7 +5,7 @@
 - Check failures inline: `cmd || { log_error "msg"; exit 1; }`.
 - Print with `printf`, never `echo`.
 - Register `trap 'cleanup' EXIT` immediately after creating temp files, taking locks, or changing directories.
-- Stream between processes with pipelines or `mkfifo`, not temp files.
+- Stream between processes with pipelines or `mkfifo`, not temp files; exception: a file whose path is output for a later consumer (e.g., an agent) is kept, with the cleanup trap disarmed (`trap - EXIT`) only after success.
 - Scripts verify directory changes, inputs, and required commands; skip checks for improbable environments.
 - README and doc examples assume the happy path and change directories in a subshell: `(cd dir && cmd)`.
 - Log only through these level functions, defining just the levels the script uses (global `NC`, color local to each function, warnings and errors to stderr):
