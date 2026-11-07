@@ -1,4 +1,0 @@
-name: build-permission
-description: "Compiles layer-separated allowlists into platform-specific configurations for AI agents. Use this skill only via the /build-permission slash command."
-disable-model-invocation: true
-user-invocable: true

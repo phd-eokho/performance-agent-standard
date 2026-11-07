@@ -4,7 +4,8 @@
 # ---
 # Each case dir holds `prompt.txt`, optional `fixture/` (copied into a fresh temp workspace), and `check.sh`
 # (called as `check.sh <workspace> <trace>`; exit 0 = pass). Every run also fails if the agent searched for rule files.
-# Agents run sandboxed (`--sandbox`) with only file edits auto-approved (`--mode accept-edits`).
+# Agents run sandboxed (`--sandbox`) with file edits auto-approved (`--mode accept-edits`); commands follow the agy
+# permission rules in settings.json (the policy install.sh writes), the same with and without the plugin.
 #
 # Usage: tests/eval/run.sh [--model M] [--runs N] [--case GLOB] [--baseline]
 #   --baseline  also run with the plugin disabled (re-enabled on exit) to measure each rule's effect

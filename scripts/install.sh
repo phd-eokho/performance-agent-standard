@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # ---
-# purpose: Installs the plugin through each agent's own plugin manager; every installed file stays inside the plugin directory.
+# purpose: Installs the plugin through each agent's own plugin manager, then replaces the agent's permission rules with the plugin's read-only policy.
 # ---
 #   antigravity: agy plugin install            → ~/.gemini/config/plugins/performance-agent-standards/
 #   claude:      local marketplace + install   → ~/.claude/plugins/performance-agent-standards/ (+ Claude's plugin cache)
-# Global files (CLAUDE.md, GEMINI.md, rules/, settings.json, skills/) are never modified.
+# settings.json: permissions.allow/ask/deny are replaced (other keys kept, previous file backed up next to it).
+# Global CLAUDE.md, GEMINI.md, rules/, and skills/ are never modified.
 
 set -euo pipefail
 
@@ -27,6 +28,8 @@ REPO_SLUG=${REPO_SLUG:-"DeokhoKim/performance-agent-standard"}
 PROVIDER=${PROVIDER:-auto}
 SOURCE_DIR=${SOURCE_DIR:-}
 CLAUDE_MARKETPLACE_DIR=${CLAUDE_MARKETPLACE_DIR:-"$HOME/.claude/plugins/${PLUGIN_NAME}"}
+AGY_SETTINGS=${AGY_SETTINGS:-"$HOME/.gemini/antigravity-cli/settings.json"}
+CLAUDE_SETTINGS=${CLAUDE_SETTINGS:-"${CLAUDE_CONFIG_DIR:-$HOME/.claude}/settings.json"}
 
 print_usage() {
   printf "Usage: install.sh [--provider antigravity|claude|auto] [--source <repo-dir>] [--repo <owner/name>]\n"
@@ -61,8 +64,9 @@ while [[ "$#" -gt 0 ]]; do
   esac
 done
 
+SETTINGS_TMP=""
 TMP_DIR=$(mktemp -d)
-trap 'rm -rf "$TMP_DIR"' EXIT
+trap 'rm -rf "$TMP_DIR"; [[ -z "$SETTINGS_TMP" ]] || rm -f "$SETTINGS_TMP"' EXIT
 
 # Prints the providers to install for.
 resolve_providers() {
@@ -115,8 +119,54 @@ fetch_dist() {
   printf "%s\n" "${TMP_DIR}/clone/dist/${provider}"
 }
 
+# Prints rules that allow the plugin's own skill scripts, run directly or through bash/sh, under each installed root.
+# Arguments: provider, compiled plugin dir, installed plugin roots...
+script_rules() {
+  local provider="$1" dist="$2" rel root path
+  shift 2
+  (cd "$dist" && find skills -path '*/scripts/*' -type f -name '*.sh') | sort | while IFS= read -r rel; do
+    for root in "$@"; do
+      path="${root}/${rel}"
+      case "$provider" in
+        antigravity) printf 'command(%s)\ncommand(bash %s)\ncommand(sh %s)\n' "$path" "$path" "$path" ;;
+        claude) printf 'Bash(%s)\nBash(%s *)\nBash(bash %s)\nBash(bash %s *)\nBash(sh %s)\nBash(sh %s *)\n' \
+          "$path" "$path" "$path" "$path" "$path" "$path" ;;
+      esac
+    done
+  done | jq -Rn '[inputs]'
+}
+
+# Replaces permissions.allow/ask/deny in the agent's settings with the compiled policy plus the plugin script rules.
+# Every other setting is kept; an existing file is first copied to <settings>.<timestamp>.bak.
+# Arguments: provider, compiled plugin dir, settings file, installed plugin roots...
+override_permissions() {
+  local provider="$1" dist="$2" settings="$3" rules backup
+  shift 3
+  [[ -f "${dist}/permissions.json" ]] || {
+    log_warn "No compiled permissions in ${dist}; ${settings} left unchanged."
+    return 0
+  }
+  rules=$(jq --argjson scripts "$(script_rules "$provider" "$dist" "$@")" '.allow += $scripts' "${dist}/permissions.json")
+  mkdir -p "$(dirname "$settings")"
+  if [[ -f "$settings" ]]; then
+    backup="${settings}.$(date +%Y%m%d%H%M%S).bak"
+    cp -p "$settings" "$backup"
+  else
+    backup="none"
+    printf '{}\n' > "$settings"
+  fi
+  SETTINGS_TMP=$(mktemp "${settings}.XXXXXX")
+  jq --argjson p "$rules" '.permissions = ((.permissions // {}) + $p)' "$settings" > "$SETTINGS_TMP" || {
+    log_error "${settings} is not valid JSON; left unchanged."
+    return 1
+  }
+  mv "$SETTINGS_TMP" "$settings"
+  SETTINGS_TMP=""
+  log_info "Replaced permission rules in ${settings} (backup: ${backup})"
+}
+
 install_antigravity() {
-  local dist="$1"
+  local dist="$1" root
   command -v agy &> /dev/null || {
     log_error "agy not found."
     return 1
@@ -128,10 +178,16 @@ install_antigravity() {
   agy plugin uninstall "$PLUGIN_NAME" > /dev/null 2>&1 || true
   agy plugin install "$dist"
   log_info "Installed for agy."
+  root=$(agy plugin list --json | jq -r --arg n "$PLUGIN_NAME" '.[] | select(.name == $n) | .path // empty')
+  [[ -n "$root" ]] || {
+    log_error "agy does not report where ${PLUGIN_NAME} is installed."
+    return 1
+  }
+  override_permissions antigravity "$dist" "$AGY_SETTINGS" "$root"
 }
 
 install_claude() {
-  local dist="$1"
+  local dist="$1" roots
   command -v claude &> /dev/null || {
     log_error "claude not found."
     return 1
@@ -145,6 +201,14 @@ install_claude() {
   claude plugin uninstall "${PLUGIN_NAME}@${PLUGIN_NAME}" > /dev/null 2>&1 || true
   claude plugin install "${PLUGIN_NAME}@${PLUGIN_NAME}"
   log_info "Installed for Claude Code from ${CLAUDE_MARKETPLACE_DIR}"
+  # Skills run from the marketplace folder (readFromFolder) or the plugin cache (installPath).
+  mapfile -t roots < <(claude plugin list --json | jq -r --arg id "${PLUGIN_NAME}@${PLUGIN_NAME}" \
+    '.[] | select(.id == $id) | .readFromFolder, .installPath | values' | sort -u)
+  [[ "${#roots[@]}" -gt 0 ]] || {
+    log_error "claude does not report where ${PLUGIN_NAME} is installed."
+    return 1
+  }
+  override_permissions claude "$dist" "$CLAUDE_SETTINGS" "${roots[@]}"
 }
 
 mapfile -t providers < <(resolve_providers)
@@ -162,4 +226,4 @@ for provider in "${providers[@]}"; do
   "install_${provider}" "$dist"
 done
 
-log_info "Done. Remove files left by pre-plugin versions with: scripts/migrate-legacy.sh"
+log_info "Done."

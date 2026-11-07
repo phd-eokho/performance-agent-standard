@@ -54,24 +54,61 @@ emit_rule() {
   cat "$src"
 }
 
-# Copies skills, assembling frontmatter and resolving {{SKILL_DIR}} / {{RULES_DIR}} to absolute references
-# (skill commands run from the user's workspace, never from the plugin folder).
-# Arguments: provider, output skills dir, skill dir reference (may contain <name>), rules dir reference
+# Prints a skill body: source frontmatter dropped, each `{{RULE:<name>}}` line replaced by that rule's text
+# (headings demoted one level, code fences untouched), and the note inserted under the title when given.
+# Arguments: SKILL.md, note
+skill_body() {
+  awk -v rules="${SHARED_DIR}/rules" -v note="$2" '
+    function inline_rule(name,   path, line, fence) {
+      path = rules "/" name ".md"
+      if ((getline line < path) <= 0) {
+        print "unknown rule in skill: " name > "/dev/stderr"
+        exit 1
+      }
+      do {
+        if (line ~ /^```/) fence = !fence
+        if (!fence && line ~ /^#/) line = "#" line
+        print line
+      } while ((getline line < path) > 0)
+      close(path)
+    }
+    c >= 2 && (NF || seen) {
+      seen = 1
+      if ($0 ~ /^\{\{RULE:[a-z-]+\}\}$/) {
+        inline_rule(substr($0, 8, length($0) - 9))
+        next
+      }
+      print
+      if (note != "" && !noted && /^# /) {
+        printf "\n%s\n", note
+        noted = 1
+      }
+      next
+    }
+    /^---$/ && c < 2 {c++}
+  ' "$1"
+}
+
+# Copies skills, assembling frontmatter, inlining rules, and resolving {{SKILL_DIR}} to the provider's reference
+# for the installed skill folder (skill commands run from the user's workspace, never from the plugin folder).
+# Arguments: provider, output skills dir, skill dir reference (may contain <name>), note for skills that use {{SKILL_DIR}}
 compile_skills() {
-  local provider="$1" dest_root="$2" skill_ref="$3" rules_ref="$4"
-  local skill_dir name dest
+  local provider="$1" dest_root="$2" skill_ref="$3" dir_note="$4"
+  local skill_dir name dest note
   for skill_dir in "${SHARED_DIR}"/skills/*/; do
     skill_dir="${skill_dir%/}"
     name="${skill_dir##*/}"
     dest="${dest_root}/${name}"
+    note=""
+    grep -q '{{SKILL_DIR}}' "${skill_dir}/SKILL.md" && note="$dir_note"
     mkdir -p "$dest"
     {
       printf -- "---\n"
       cat "${skill_dir}/frontmatter.yaml"
       [[ -f "${skill_dir}/frontmatter.${provider}.yaml" ]] && cat "${skill_dir}/frontmatter.${provider}.yaml"
       printf -- "---\n\n"
-      awk 'c >= 2 && (NF || seen) {seen = 1; print} /^---$/ && c < 2 {c++}' "${skill_dir}/SKILL.md"
-    } | sed "s|{{SKILL_DIR}}|${skill_ref//<name>/$name}|g; s|{{RULES_DIR}}|${rules_ref}|g" > "${dest}/SKILL.md"
+      skill_body "${skill_dir}/SKILL.md" "$note"
+    } | sed "s|{{SKILL_DIR}}|${skill_ref//<name>/$name}|g" > "${dest}/SKILL.md"
     # Non-ignored files only, so local artifacts (.venv, __pycache__) never ship.
     git -C "$skill_dir" ls-files -co --exclude-standard -z -- . ':!SKILL.md' ':!frontmatter*' |
       tar -C "$skill_dir" --null -T - -cf - | tar -xf - -C "$dest"
@@ -80,8 +117,9 @@ compile_skills() {
 
 # Fails the build on anything that would make an agent search for files instead of reading a direct path.
 lint_plugin() {
-  local out="$1" rules_dir="$1/rules" skills_dir="$2" failed=0 ref names
-  names=$(printf '%s\n' "${RULES[@]%%|*}" AGENTS | paste -sd '|')
+  local rules_dir="$1/rules" skills_dir="$2" failed=0 names glob_names
+  glob_names=$(printf '%s\n' "${RULES[@]%%|*}" | paste -sd '|')
+  names="${glob_names}|AGENTS"
 
   # Rules are delivered by the platform; they must never point at other rule files or tool names.
   if grep -nE "@\\[|\\]\\([^)]*\\.md\\)|\\b(${names})\\.md\\b|\\{\\{|grep_search|find_by_name|view_file" "${rules_dir}"/*.md; then
@@ -92,13 +130,12 @@ lint_plugin() {
     log_error "unresolved skill placeholder"
     failed=1
   }
-  # Every rule file a skill names must exist in the plugin.
-  while IFS= read -r ref; do
-    [[ -f "${rules_dir}/${ref}" ]] || {
-      log_error "skill references missing rule: ${ref}"
-      failed=1
-    }
-  done < <(grep -rhoE 'rules/[A-Za-z-]+\.md' "$skills_dir" | sed 's|^rules/||' | sort -u)
+  # The install location varies per user and agent: skills inline rules ({{RULE:<name>}}) and reach their own files
+  # only through {{SKILL_DIR}}, never through a guessed install path or a rule file path.
+  if grep -rnE "\\\$HOME|~/|/\\.gemini/|/\\.claude/|\\.\\./|rules/(${glob_names})\\.md" "$skills_dir" --include=SKILL.md; then
+    log_error "skills contain install paths or rule file references"
+    failed=1
+  fi
   [[ "$failed" -eq 0 ]] || exit 1
 }
 
@@ -120,14 +157,19 @@ compile_provider() {
 
   cp -r "${BASE_DIR}/scripts/hooks" "${out}/scripts/"
   find "${out}/scripts" -name '*.sh' -exec chmod +x {} +
+  # Read-only allows plus asks and denies for options that cross the boundary; install.sh writes them into the agent's settings.
+  bash "${BASE_DIR}/scripts/permissions/compile.sh" "$provider" > "${out}/permissions.json"
 
   case "$provider" in
     antigravity)
       # Hooks run with the plugin folder as cwd, so hooks.json keeps relative ./scripts paths.
       cp "${src}/hooks.json" "${out}/hooks.json"
       sed "s/__VERSION__/${VERSION}/g" "${src}/plugin.json" > "${out}/plugin.json"
-      local root="\$HOME/.gemini/config/plugins/${PLUGIN_NAME}"
-      compile_skills "$provider" "${out}/skills" "${root}/skills/<name>" "${root}/rules"
+      # agy injects a /skill without its path and substitutes no variables, but shows every loaded rule with its
+      # absolute path; the always-on core rule therefore locates the plugin wherever it is installed.
+      local note
+      note="\`<plugin-root>\` is the absolute path of this plugin's folder: take the path of the loaded rule that ends in \`/rules/AGENTS.md\` and starts with \`$(head -n 1 "${SHARED_DIR}/AGENTS.md")\`, and drop \`/rules/AGENTS.md\`. Use it as-is; never search the filesystem for plugin files."
+      compile_skills "$provider" "${out}/skills" "<plugin-root>/skills/<name>" "$note"
       ;;
     claude)
       mkdir -p "${out}/.claude-plugin" "${out}/hooks"
@@ -138,7 +180,8 @@ compile_provider() {
         '{name: $n, owner: {name: "DeokhoKim"}, plugins: [{name: $n, source: "./", version: $v,
           description: "Performance-oriented coding standards, safety guard hooks, and review skills."}]}' \
         > "${out}/.claude-plugin/marketplace.json"
-      compile_skills "$provider" "${out}/skills" "\${CLAUDE_SKILL_DIR}" "\${CLAUDE_SKILL_DIR}/../../rules"
+      # Claude Code substitutes ${CLAUDE_SKILL_DIR} with the installed skill folder before the agent reads the skill.
+      compile_skills "$provider" "${out}/skills" "\${CLAUDE_SKILL_DIR}" ""
       ;;
   esac
 

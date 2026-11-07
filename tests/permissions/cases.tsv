@@ -1,0 +1,255 @@
+# provider	expect(allow|ask|deny)	command; agy asks for a denied option (it ignores regex deny rules); claude cases
+# cover only commands outside claude_builtin, except denies
+antigravity	allow	git log -1 --oneline
+antigravity	allow	git status --short && git diff --stat
+antigravity	allow	git log --oneline | head -5
+antigravity	allow	git log -1 --oneline 2>/dev/null
+antigravity	ask	git log -1 --output=out.txt
+antigravity	ask	git log -1 --output out.txt
+antigravity	ask	git diff --stat --output=out.txt
+antigravity	ask	git rev-list --output=out.txt HEAD
+antigravity	ask	git shortlog -sn --output=out.txt
+antigravity	ask	git stash list --output=out.txt
+antigravity	ask	git stash show -p --output=out.txt
+antigravity	ask	git log -1 a b c d e f g h --output=out.txt
+antigravity	ask	git log -1 a b c d e f g h i j k --output=out.txt
+antigravity	ask	git log $OPT
+antigravity	ask	git log -1 > out.txt
+antigravity	ask	git log -1 $(cat opts)
+antigravity	ask	git status && git log --output=out.txt
+antigravity	ask	git stash
+antigravity	ask	git stash pop
+antigravity	allow	git grep -n foo
+antigravity	ask	git grep -O foo
+antigravity	ask	git grep -nOvim foo
+antigravity	ask	git grep --open-files-in-pager=vim foo
+antigravity	allow	git branch
+antigravity	allow	git branch --show-current
+antigravity	allow	git branch -a -vv
+antigravity	allow	git branch --sort=-committerdate --format='%(refname:short)'
+antigravity	ask	git branch newb
+antigravity	ask	git branch -v newb
+antigravity	ask	git branch -q newb
+antigravity	ask	git branch -D old
+antigravity	ask	git branch -vd old
+antigravity	ask	git branch --unset-upstream
+antigravity	ask	git branch --set-upstream-to=origin/main
+antigravity	ask	git branch --edit-description
+antigravity	allow	git tag
+antigravity	allow	git tag -l
+antigravity	allow	git tag --sort=-v:refname -n5
+antigravity	ask	git tag v1.0
+antigravity	ask	git tag -a -m msg v1.0
+antigravity	ask	git tag -d v1.0
+antigravity	ask	git tag -nd v1.0
+antigravity	allow	git remote
+antigravity	allow	git remote -v
+antigravity	allow	git remote show origin
+antigravity	allow	git remote get-url origin
+antigravity	ask	git remote add up https://example.com/x.git
+antigravity	ask	git remote -v add up https://example.com/x.git
+antigravity	allow	git remote --verbose update
+antigravity	allow	git remote prune origin
+antigravity	ask	git remote set-url origin https://example.com/x.git
+antigravity	ask	git remote rm up
+antigravity	allow	git reflog
+antigravity	allow	git reflog show -n 5
+antigravity	ask	git reflog expire --all
+antigravity	ask	git reflog delete HEAD@{1}
+antigravity	ask	git reflog show --output=out.txt
+antigravity	allow	git notes list
+antigravity	allow	git notes --ref review show HEAD
+antigravity	ask	git notes add -m x
+antigravity	ask	git notes --ref review remove HEAD
+antigravity	allow	git hash-object stats.py
+antigravity	ask	git hash-object -w stats.py
+antigravity	ask	git hash-object -wt blob stats.py
+antigravity	ask	git hash-object -t blob -w stats.py
+antigravity	allow	git fsck --no-dangling
+antigravity	ask	git fsck --lost-found
+antigravity	allow	git ls-remote origin
+antigravity	ask	git ls-remote --upload-pack=./x origin
+antigravity	allow	git config --get user.name
+antigravity	allow	git config --list --show-origin
+antigravity	allow	git config -l
+antigravity	allow	git config get user.name
+antigravity	ask	git config user.name
+antigravity	ask	git config user.name Someone
+antigravity	ask	git config user.x --local val
+antigravity	ask	git config --global user.name Someone
+antigravity	ask	git config --unset user.name
+antigravity	allow	git worktree list --porcelain
+antigravity	ask	git worktree add ../x
+antigravity	allow	git rev-parse --show-toplevel
+antigravity	allow	git cat-file -p HEAD
+antigravity	allow	git ls-files -m
+antigravity	allow	git show-ref --heads
+antigravity	allow	git describe --tags --dirty
+antigravity	allow	git fetch
+antigravity	allow	git fetch origin
+antigravity	allow	git fetch --all --prune --tags
+antigravity	allow	git fetch -p origin
+antigravity	allow	git fetch --depth 1 origin main
+antigravity	ask	git fetch origin main:main
+antigravity	ask	git fetch origin '+refs/heads/*:refs/heads/*'
+antigravity	ask	git fetch --refmap= origin
+antigravity	allow	git fetch --set-upstream origin main
+antigravity	allow	git fetch -u origin
+antigravity	allow	git fetch -pu origin
+antigravity	allow	git fetch --update-head-ok --prune origin
+antigravity	ask	git fetch --tags --force
+antigravity	ask	git fetch -tf
+antigravity	ask	git fetch -pP
+antigravity	ask	git fetch --stdin origin
+antigravity	ask	git fetch --upload-pack=./x origin
+antigravity	ask	git fetch --prune --upload-pack ./x origin
+antigravity	allow	git clone https://example.com/x.git
+antigravity	allow	git clone --depth 1 -b main https://example.com/x.git dir
+antigravity	allow	git clone -c core.autocrlf=false https://example.com/x.git
+antigravity	allow	git clone --config=core.longpaths=true https://example.com/x.git
+antigravity	allow	git clone -qc core.autocrlf=false https://example.com/x.git
+antigravity	allow	git clone --template=t https://example.com/x.git
+antigravity	ask	git clone --upload-pack=./x https://example.com/x.git
+antigravity	ask	git clone -u ./x https://example.com/x.git
+antigravity	ask	git clone -qu ./x https://example.com/x.git
+antigravity	allow	gh repo clone owner/repo
+antigravity	allow	gh repo clone owner/repo dir -- --depth 1
+antigravity	allow	gh repo clone owner/repo -- -c core.autocrlf=false
+antigravity	ask	gh repo clone owner/repo -- -u ./x
+antigravity	ask	gh repo clone owner/repo -- --upload-pack=./x
+antigravity	allow	gh repo clone owner/repo -u up
+antigravity	allow	gh repo clone owner/repo -u up -- --depth 1
+antigravity	ask	gh repo clone owner/repo -- -qu ./x
+antigravity	ask	gh repo clone owner/repo -u up -- --depth 1 -u ./x
+antigravity	ask	gh gist clone abc123 dir -- -u ./x
+antigravity	ask	gh repo clone owner/repo -- $FLAGS
+antigravity	allow	gh repo clone owner/repo --upstream-remote-name up
+antigravity	allow	gh gist clone abc123
+antigravity	allow	gh gist clone abc123 -- --template=t
+antigravity	ask	git gc
+antigravity	ask	git archive -o out.tar HEAD
+antigravity	ask	git -C other log
+antigravity	ask	git commit -m x
+antigravity	allow	gh pr view 12 --json title
+antigravity	allow	gh run view 1 --log-failed
+antigravity	allow	gh repo license view mit
+antigravity	allow	gh auth status
+antigravity	ask	gh auth status -t
+antigravity	ask	gh auth status --show-token
+antigravity	ask	gh auth status -at
+antigravity	ask	gh auth token
+antigravity	allow	gh codespace ports -c cs
+antigravity	ask	gh codespace ports forward 8080:8080
+antigravity	ask	gh codespace ports -c cs visibility 80:public
+antigravity	allow	gh release download v1
+antigravity	allow	gh release download v1 -D dist --clobber
+antigravity	allow	gh run download 1 -n logs
+antigravity	allow	gh attestation download artifact.tgz -o owner
+antigravity	ask	gh pr create --fill
+antigravity	ask	gh api repos/x/y
+antigravity	allow	find . -name '*.py' -type f
+antigravity	ask	find . -name '*.pyc' -delete
+antigravity	ask	find . -type f -exec rm {} ;
+antigravity	ask	find . -name x -fprint out.txt
+antigravity	ask	find . -a -b -c -d -e -f -g -h -i -j -delete
+antigravity	allow	fd -e py
+antigravity	ask	fd -e py -x wc -l
+antigravity	ask	fd -HX rm
+antigravity	ask	fdfind --exec-batch rm
+antigravity	allow	rg -n --hidden foo src
+antigravity	ask	rg --pre ./pre foo
+antigravity	ask	rg --pre=./pre foo
+antigravity	ask	rg --hostname-bin=./x foo
+antigravity	allow	sort -u -k2,2 file.txt
+antigravity	ask	sort -o out.txt file.txt
+antigravity	ask	sort -uo out.txt file.txt
+antigravity	ask	sort --output=out.txt file.txt
+antigravity	ask	sort --compress-program=gzip file.txt
+antigravity	allow	tree -L 2 -a
+antigravity	ask	tree -o out.txt
+antigravity	ask	tree -aRo out.txt
+antigravity	allow	file -b stats.py
+antigravity	ask	file -C -m magic
+antigravity	allow	date -u +%F
+antigravity	allow	date -Iseconds
+antigravity	ask	date -s 2020-01-01
+antigravity	ask	date --set=2020-01-01
+antigravity	allow	sort file.txt | uniq -c
+antigravity	ask	uniq in.txt out.txt
+antigravity	allow	yq '.a' x.yaml
+antigravity	ask	yq -i '.a = 1' x.yaml
+antigravity	ask	yq -Pi '.a = 1' x.yaml
+antigravity	ask	yq -s '.name' x.yaml
+antigravity	ask	yq --security-enable-system-operator 'system("id")' x.yaml
+antigravity	allow	awk '{print $1}' stats.py
+antigravity	allow	awk -F: '$3 > 1000 {print $1}' /etc/passwd
+antigravity	allow	gawk -v n=2 'NR == n' stats.py
+antigravity	ask	awk 'BEGIN{system("id")}'
+antigravity	ask	awk '{print > "out.txt"}' stats.py
+antigravity	ask	awk '{print $1 | "sort"}' stats.py
+antigravity	ask	awk -f prog.awk stats.py
+antigravity	ask	awk -nf prog.awk stats.py
+antigravity	ask	gawk -p stats.py
+antigravity	ask	awk '@load "filefuncs"; BEGIN{}'
+antigravity	allow	sed -n 1,20p stats.py
+antigravity	allow	sed -n '10,$p' stats.py
+antigravity	allow	sed -n '/def/p' stats.py
+antigravity	allow	sed 5q stats.py
+antigravity	ask	sed -i s/a/b/ stats.py
+antigravity	ask	sed -n 1,20p -i stats.py
+antigravity	ask	sed -n 1,20p -ni stats.py
+antigravity	ask	sed -n 1,20p -e 'w out' stats.py
+antigravity	ask	sed -n '1w out.txt' stats.py
+antigravity	ask	sed s/a/b/w stats.py
+antigravity	allow	cat stats.py | wc -l
+antigravity	allow	ls -la && pwd
+antigravity	allow	jq -r .name package.json
+antigravity	allow	cd src && grep -rn foo .
+antigravity	ask	echo hi > out.txt
+antigravity	allow	echo hi
+antigravity	ask	env
+antigravity	ask	xargs rm
+antigravity	ask	rm -rf build
+antigravity	ask	npm test
+antigravity	deny	rm -rf /
+antigravity	deny	rm -rf *
+antigravity	deny	chmod +x run.sh
+antigravity	deny	ls && dd if=/dev/zero of=x
+claude	allow	git range-diff main...feature
+claude	ask	git range-diff --output=out.txt main...feature
+claude	ask	git whatchanged -1 --output=out.txt
+claude	allow	git notes list
+claude	ask	git notes add -m x
+claude	ask	git notes --ref review remove HEAD
+claude	allow	git hash-object stats.py
+claude	ask	git hash-object -w stats.py
+claude	ask	git hash-object -wt blob stats.py
+claude	allow	git fsck
+claude	ask	git fsck --lost-found
+claude	allow	git config --list --show-origin
+claude	ask	git config user.x --local val
+claude	allow	git ls-tree HEAD
+claude	allow	gh codespace ports -c cs
+claude	ask	gh codespace ports -c cs forward 8080:8080
+claude	allow	gh repo license view mit
+claude	ask	gh auth token
+claude	allow	gh release download v1 -D dist
+claude	allow	gh run download 1
+claude	ask	git fetch origin
+claude	deny	git fetch --upload-pack=./x origin
+claude	ask	git clone https://example.com/x.git
+claude	deny	git clone --upload-pack=./x https://example.com/x.git
+claude	deny	git clone -u ./x https://example.com/x.git
+claude	deny	gh repo clone owner/repo -- --upload-pack=./x
+claude	ask	gh repo clone owner/repo -u up
+claude	ask	gh repo clone owner/repo -u up -- --depth 1
+claude	deny	gh repo clone owner/repo -- -u ./x
+claude	deny	git ls-remote --upload-pack=./x origin
+claude	allow	jq -r .name package.json
+claude	allow	printf '%s\n' x
+claude	ask	awk '{print $1}' stats.py
+claude	ask	uniq in.txt out.txt
+claude	ask	yq -i '.a = 1' x.yaml
+claude	deny	chmod +x run.sh
+claude	deny	rm -rf /
+claude	ask	rm -rf build

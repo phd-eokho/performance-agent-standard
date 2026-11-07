@@ -1,0 +1,651 @@
+{
+  "max_args": 10,
+  "claude_builtin": [
+    "git blame",
+    "git branch",
+    "git cat-file",
+    "git config --get",
+    "git describe",
+    "git diff",
+    "git for-each-ref",
+    "git grep",
+    "git log",
+    "git ls-files",
+    "git ls-remote",
+    "git merge-base",
+    "git reflog",
+    "git remote",
+    "git rev-list",
+    "git rev-parse",
+    "git shortlog",
+    "git show",
+    "git stash list",
+    "git stash show",
+    "git status",
+    "git tag",
+    "git worktree list",
+    "gh auth status",
+    "gh issue list",
+    "gh issue status",
+    "gh issue view",
+    "gh label list",
+    "gh pr checks",
+    "gh pr diff",
+    "gh pr list",
+    "gh pr status",
+    "gh pr view",
+    "gh release list",
+    "gh release view",
+    "gh repo view",
+    "gh run list",
+    "gh run view",
+    "gh search code",
+    "gh search commits",
+    "gh search issues",
+    "gh search prs",
+    "gh search repos",
+    "gh workflow list",
+    "gh workflow view",
+    "basename",
+    "cat",
+    "cd",
+    "cmp",
+    "column",
+    "comm",
+    "cut",
+    "date",
+    "df",
+    "diff",
+    "dirname",
+    "du",
+    "echo",
+    "egrep",
+    "fd",
+    "fdfind",
+    "fgrep",
+    "file",
+    "find",
+    "fold",
+    "grep",
+    "head",
+    "hexdump",
+    "id",
+    "ls",
+    "md5sum",
+    "nl",
+    "nproc",
+    "od",
+    "paste",
+    "pwd",
+    "readlink",
+    "realpath",
+    "rev",
+    "rg",
+    "sed",
+    "seq",
+    "sha1sum",
+    "sha256sum",
+    "sort",
+    "stat",
+    "strings",
+    "tac",
+    "tail",
+    "tr",
+    "tree",
+    "uname",
+    "wc",
+    "which",
+    "whoami"
+  ],
+  "groups": [
+    {
+      "why": "Diff and log output options include --output=<file>, which writes the file (rev-list, shortlog, and reflog show write it too).",
+      "prefixes": [
+        "git log",
+        "git show",
+        "git diff",
+        "git whatchanged",
+        "git diff-files",
+        "git diff-index",
+        "git diff-tree",
+        "git range-diff",
+        "git rev-list",
+        "git shortlog",
+        "git stash list",
+        "git stash show",
+        "git bisect view",
+        "git bisect visualize"
+      ],
+      "ask": [
+        "--output"
+      ]
+    },
+    {
+      "why": "-O/--open-files-in-pager runs a pager program on the matching files.",
+      "prefixes": [
+        "git grep"
+      ],
+      "ask": [
+        "--open-files-in-pager"
+      ],
+      "ask_agy": [
+        "-[A-Za-z0-9]*O.*"
+      ]
+    },
+    {
+      "why": "Without list mode a branch-name operand creates a branch (git branch -v NAME creates NAME), so every operand asks, list patterns included. Write flags: -d -D -m -M -c -C -f -t -u and their long forms.",
+      "prefixes": [
+        "git branch"
+      ],
+      "ask": [
+        "--delete",
+        "--move",
+        "--copy",
+        "--force",
+        "--track",
+        "--set-upstream-to",
+        "--unset-upstream",
+        "--edit-description",
+        "--create-reflog",
+        "--recurse-submodules"
+      ],
+      "ask_agy": [
+        "-[A-Za-z]*[dDmMcCftu].*",
+        "[^-].*"
+      ]
+    },
+    {
+      "why": "A tag-name operand creates a tag (deletes with -d); every operand asks, list patterns included. Write flags: -a -s -u -f -d -m -F -e.",
+      "prefixes": [
+        "git tag"
+      ],
+      "ask": [
+        "--annotate",
+        "--sign",
+        "--local-user",
+        "--force",
+        "--delete",
+        "--message",
+        "--file",
+        "--edit",
+        "--cleanup",
+        "--create-reflog"
+      ],
+      "ask_agy": [
+        "-[lnvi0-9]*[asufdmFe].*",
+        "[^-].*"
+      ]
+    },
+    {
+      "why": "-v/--verbose may precede a subcommand (git remote -v add NAME URL adds a remote), so a subcommand that changes remote configuration asks anywhere. update and prune only fetch and prune remote-tracking refs, like git fetch.",
+      "prefixes": [
+        "git remote"
+      ],
+      "ask": [
+        "add",
+        "rename",
+        "remove",
+        "rm",
+        "set-head",
+        "set-branches",
+        "set-url"
+      ]
+    },
+    {
+      "why": "Fetching copies the remote into remote-tracking refs, and --prune deletes those the remote no longer has. -u/--update-head-ok only lifts a check for src:dst refspecs, which ask. --set-upstream writes branch.<name>.remote and .merge for the current branch; it is allowed by choice, since a new branch usually sets it once. A src:dst refspec or --refmap moves local branches by local choice (every word with a colon asks, a URL too; fetch by remote name); -f/--force and -P/--prune-tags overwrite or delete local tags; --stdin reads refspecs that cannot be checked; --upload-pack runs any given program (denied).",
+      "prefixes": [
+        "git fetch"
+      ],
+      "ask": [
+        "--refmap",
+        "--force",
+        "--prune-tags",
+        "--stdin"
+      ],
+      "ask_agy": [
+        "-[vqamtnpku46]*[fP].*",
+        ".*:.*"
+      ],
+      "deny": [
+        "--upload-pack"
+      ],
+      "claude": false
+    },
+    {
+      "why": "Cloning only copies a remote into a new repository. -c/--config and --template are allowed by choice: they only affect the new repository, although some config keys name programs that run during the clone and template hooks run at checkout. -u is --upload-pack (git clone -h: -u, --[no-]upload-pack <path>), which runs any given program (denied); it bundles after the no-argument flags -v -q -n -l -s.",
+      "prefixes": [
+        "git clone"
+      ],
+      "ask_agy": [
+        "-[vqnls]+u.*"
+      ],
+      "deny": [
+        "--upload-pack",
+        "-u"
+      ],
+      "claude": false
+    },
+    {
+      "why": "gh clones copy a remote into a new repository (gh repo clone also adds the fork parent as a remote of that new repository; -u/--upstream-remote-name only names it). Any other flag before -- fails ('unknown flag: --upload-pack'); the words after -- are git clone flags ([-- <gitflags>...]).",
+      "prefixes": [
+        "gh repo clone",
+        "gh gist clone"
+      ],
+      "forwards": "git clone",
+      "claude": false
+    },
+    {
+      "why": "Downloads only copy remote release assets, run artifacts, or attestations into local files (--clobber overwrites a local file of the same name); no flag changes the remote.",
+      "prefixes": [
+        "gh release download",
+        "gh run download",
+        "gh attestation download"
+      ]
+    },
+    {
+      "why": "expire, delete, and drop rewrite reflogs; show takes log options, including --output.",
+      "prefixes": [
+        "git reflog"
+      ],
+      "ask": [
+        "expire",
+        "delete",
+        "drop",
+        "--output"
+      ]
+    },
+    {
+      "why": "list, show, and get-ref read; every other subcommand writes notes.",
+      "prefixes": [
+        "git notes"
+      ],
+      "ask": [
+        "add",
+        "copy",
+        "append",
+        "edit",
+        "merge",
+        "remove",
+        "prune"
+      ]
+    },
+    {
+      "why": "-w writes the object into the object database, also when bundled (-wt).",
+      "prefixes": [
+        "git hash-object"
+      ],
+      "ask": [
+        "-w"
+      ]
+    },
+    {
+      "why": "--lost-found writes dangling objects into .git/lost-found.",
+      "prefixes": [
+        "git fsck"
+      ],
+      "ask": [
+        "--lost-found"
+      ]
+    },
+    {
+      "why": "--upload-pack runs the given program (denied); git ls-remote has no short form for it.",
+      "prefixes": [
+        "git ls-remote"
+      ],
+      "deny": [
+        "--upload-pack"
+      ]
+    },
+    {
+      "why": "git config runs one action, and a second action fails ('only one action at a time'), so a leading read action cannot write. A bare `git config NAME VALUE` writes even when VALUE looks like an option (git config user.x --local val stores '--local'); only read-action prefixes are allowed.",
+      "prefixes": [
+        "git config --get",
+        "git config --get-all",
+        "git config --get-regexp",
+        "git config --get-urlmatch",
+        "git config --get-color",
+        "git config --get-colorbool",
+        "git config --list",
+        "git config -l",
+        "git config get",
+        "git config list"
+      ]
+    },
+    {
+      "why": "git <cmd> -h lists no option that writes files, refs, or objects or runs a program (status and describe --dirty only refresh the index stat cache).",
+      "prefixes": [
+        "git annotate",
+        "git blame",
+        "git bisect log",
+        "git cat-file",
+        "git check-attr",
+        "git check-ignore",
+        "git check-mailmap",
+        "git check-ref-format",
+        "git cherry",
+        "git count-objects",
+        "git describe",
+        "git for-each-ref",
+        "git help",
+        "git ls-files",
+        "git ls-tree",
+        "git merge-base",
+        "git name-rev",
+        "git patch-id",
+        "git rev-parse",
+        "git show-branch",
+        "git show-index",
+        "git show-ref",
+        "git status",
+        "git var",
+        "git verify-commit",
+        "git verify-pack",
+        "git verify-tag",
+        "git version",
+        "git worktree list"
+      ]
+    },
+    {
+      "why": "-t/--show-token prints the auth token. Without --no-refresh, status refreshes an expiring token in the local credential store.",
+      "prefixes": [
+        "gh auth status"
+      ],
+      "ask": [
+        "--show-token"
+      ],
+      "ask_agy": [
+        "-[A-Za-z]*t.*"
+      ]
+    },
+    {
+      "why": "forward and visibility change port forwarding and visibility; bare ports lists.",
+      "prefixes": [
+        "gh codespace ports"
+      ],
+      "ask": [
+        "forward",
+        "visibility"
+      ]
+    },
+    {
+      "why": "gh <cmd> --help lists no flag that writes local files or changes the remote; --web only opens a browser. Excluded: auth token (prints a credential), extension browse (installs from a TUI).",
+      "prefixes": [
+        "gh alias list",
+        "gh attestation trusted-root",
+        "gh attestation verify",
+        "gh cache list",
+        "gh codespace list",
+        "gh codespace logs",
+        "gh codespace view",
+        "gh config get",
+        "gh config list",
+        "gh discussion list",
+        "gh discussion view",
+        "gh extension list",
+        "gh extension search",
+        "gh gist list",
+        "gh gist view",
+        "gh gpg-key list",
+        "gh issue list",
+        "gh issue status",
+        "gh issue view",
+        "gh label list",
+        "gh org list",
+        "gh pr checks",
+        "gh pr diff",
+        "gh pr list",
+        "gh pr status",
+        "gh pr view",
+        "gh project field-list",
+        "gh project item-list",
+        "gh project list",
+        "gh project view",
+        "gh release list",
+        "gh release view",
+        "gh repo autolink list",
+        "gh repo autolink view",
+        "gh repo deploy-key list",
+        "gh repo gitignore list",
+        "gh repo gitignore view",
+        "gh repo license list",
+        "gh repo license view",
+        "gh repo list",
+        "gh repo view",
+        "gh ruleset check",
+        "gh ruleset list",
+        "gh ruleset view",
+        "gh run list",
+        "gh run view",
+        "gh run watch",
+        "gh search code",
+        "gh search commits",
+        "gh search issues",
+        "gh search prs",
+        "gh search repos",
+        "gh secret list",
+        "gh ssh-key list",
+        "gh status",
+        "gh variable get",
+        "gh variable list",
+        "gh version",
+        "gh workflow list",
+        "gh workflow view"
+      ]
+    },
+    {
+      "why": "-delete deletes; -exec, -execdir, -ok, and -okdir run commands; -fprint, -fprint0, -fprintf, and -fls write files.",
+      "prefixes": [
+        "find"
+      ],
+      "ask": [
+        "-delete",
+        "-exec",
+        "-execdir",
+        "-ok",
+        "-okdir",
+        "-fprint",
+        "-fprint0",
+        "-fprintf",
+        "-fls"
+      ]
+    },
+    {
+      "why": "-x/--exec and -X/--exec-batch run commands (fd.1); fd writes no files.",
+      "prefixes": [
+        "fd",
+        "fdfind"
+      ],
+      "ask": [
+        "--exec",
+        "--exec-batch"
+      ],
+      "ask_agy": [
+        "-[HIusigFalLp01q]*[xX].*"
+      ]
+    },
+    {
+      "why": "--pre runs a preprocessor on every file; --hostname-bin runs a program.",
+      "prefixes": [
+        "rg"
+      ],
+      "ask": [
+        "--pre",
+        "--hostname-bin"
+      ]
+    },
+    {
+      "why": "-o/--output writes FILE; --compress-program runs PROG.",
+      "prefixes": [
+        "sort"
+      ],
+      "ask": [
+        "--output",
+        "--compress-program"
+      ],
+      "ask_agy": [
+        "-[bdfgiMhnRrVcCmsuz]*o.*"
+      ]
+    },
+    {
+      "why": "-o writes the listing to a file; -R reruns tree and writes 00Tree.html files.",
+      "prefixes": [
+        "tree"
+      ],
+      "ask_agy": [
+        "-[acdfghilnpqrstuvxACDFJQNSUX]*[oR].*"
+      ]
+    },
+    {
+      "why": "-C/--compile writes a compiled magic file.",
+      "prefixes": [
+        "file"
+      ],
+      "ask": [
+        "--compile"
+      ],
+      "ask_agy": [
+        "-[bcdEhiklLNnprsSvzZ0]*C.*"
+      ]
+    },
+    {
+      "why": "-s/--set sets the system clock.",
+      "prefixes": [
+        "date"
+      ],
+      "ask": [
+        "--set"
+      ],
+      "ask_agy": [
+        "-[uR]*s.*"
+      ]
+    },
+    {
+      "why": "A second operand is an OUTPUT file that uniq overwrites, so every operand asks; pipelines stay allowed.",
+      "prefixes": [
+        "uniq"
+      ],
+      "ask_agy": [
+        "[^-].*"
+      ],
+      "claude": false
+    },
+    {
+      "why": "-i/--inplace rewrites the input; -s/--split-exp and --split-exp-file write one file per result; --security-enable-system-operator enables system() (yq cmd/root.go).",
+      "prefixes": [
+        "yq"
+      ],
+      "ask": [
+        "--inplace",
+        "--split-exp",
+        "--split-exp-file",
+        "--security-enable-system-operator"
+      ],
+      "ask_agy": [
+        "-[nNr0PeCMcvj]*[is].*"
+      ],
+      "claude": false
+    },
+    {
+      "why": "-f reads the program from a file; -d, -D, -o, and -p write dump, debug, pretty-print, and profile files; -E, -i, and -l load code (gawk --help). Program text runs commands through system() or pipes, writes files through print >, and loads code through @load/@include.",
+      "prefixes": [
+        "awk",
+        "gawk"
+      ],
+      "ask": [
+        "--file",
+        "--dump-variables",
+        "--debug",
+        "--exec",
+        "--include",
+        "--load",
+        "--pretty-print",
+        "--profile"
+      ],
+      "ask_agy": [
+        "-[bcCghMnNOPrsStVY]*[fdDEilop].*",
+        "-W.*",
+        "(?s:.*(system|@).*)",
+        "(?s:.*\\x7c.*)",
+        "(?s:.*print[^\\x3b\\x7d]*\\x3e.*)"
+      ],
+      "literal_dollar": true,
+      "claude": false
+    },
+    {
+      "why": "Only a script that prints an address range or quits is allowed; -i/--in-place edits files, and -e/-f add scripts that may write (w) or execute (e) (sed --help).",
+      "patterns": [
+        "sed -n (([0-9]+|\\$)(,([0-9]+|\\$))?p)",
+        "sed -n (/[^/]*/(,/[^/]*/)?p)",
+        "sed (([0-9]+|\\$)q)"
+      ],
+      "ask": [
+        "--in-place",
+        "--expression",
+        "--file"
+      ],
+      "ask_agy": [
+        "-[nErsuz]*[ief].*"
+      ],
+      "literal_dollar": true,
+      "claude": false
+    },
+    {
+      "why": "--help lists no option that writes files or runs programs; options named output only change the display (df --output, cut --output-delimiter). The agent checks redirections itself.",
+      "prefixes": [
+        "basename",
+        "cat",
+        "cd",
+        "cmp",
+        "column",
+        "comm",
+        "cut",
+        "df",
+        "diff",
+        "dirname",
+        "du",
+        "echo",
+        "egrep",
+        "fgrep",
+        "fold",
+        "grep",
+        "head",
+        "hexdump",
+        "id",
+        "jq",
+        "ls",
+        "md5sum",
+        "nl",
+        "nproc",
+        "od",
+        "paste",
+        "printf",
+        "ps",
+        "pwd",
+        "readlink",
+        "realpath",
+        "rev",
+        "seq",
+        "sha1sum",
+        "sha256sum",
+        "sha512sum",
+        "stat",
+        "strings",
+        "tac",
+        "tail",
+        "tr",
+        "uname",
+        "wc",
+        "which",
+        "whoami"
+      ]
+    }
+  ],
+  "deny": [
+    "rm -rf /",
+    "rm -rf *",
+    "mkfs",
+    "dd",
+    "chmod",
+    "kill"
+  ]
+}
