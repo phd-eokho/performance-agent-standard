@@ -24,7 +24,7 @@ log_error() {
 }
 
 PLUGIN_NAME="performance-agent-standards"
-REPO_SLUG=${REPO_SLUG:-"DeokhoKim/performance-agent-standard"}
+REPO_SLUG=${REPO_SLUG:-"phd-eokho/performance-agent-standard"}
 PROVIDER=${PROVIDER:-auto}
 SOURCE_DIR=${SOURCE_DIR:-}
 CLAUDE_MARKETPLACE_DIR=${CLAUDE_MARKETPLACE_DIR:-"$HOME/.claude/plugins/${PLUGIN_NAME}"}

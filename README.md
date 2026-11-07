@@ -16,7 +16,7 @@ Design invariants:
 ### Install
 
 ```bash
-curl -sSfL https://raw.githubusercontent.com/DeokhoKim/performance-agent-standard/main/scripts/install.sh | bash
+curl -sSfL https://raw.githubusercontent.com/phd-eokho/performance-agent-standard/main/scripts/install.sh | bash
 ```
 
 - Installs for every detected agent; restrict with `--provider antigravity` or `--provider claude`.
