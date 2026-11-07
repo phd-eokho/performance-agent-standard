@@ -21,7 +21,7 @@ Step: 1. Target Inspection & Cross-File Constraint Mapping:
 - Rule: Multi-File Context Extraction: Inspect each file in `[target-files]` (or target directory/hierarchy if new) to autonomously extract individual domain scopes, existing constraints, tool bindings, and structural relationships.
 - Rule: Cross-File Redundancy & Conflict Detection: Build an aggregate cross-file constraint matrix. Identify duplicated rules, overlapping definitions, shared abstractions, and semantic inconsistencies across files.
 - Rule: Hierarchical Layering & Checklist Compilation: Partition constraints into universal common invariants vs specialized domain expansions (enforcing non-redundant hierarchical supplementation). Merge with `[additional-constraints]` into an explicit numbered checklist ($C_1, C_2, \dots, C_n$) mapping constraints to their designated target files. Every candidate rule set MUST achieve 100% Zero Context Loss against this checklist.
-- Rule: Style Verification: Candidates follow the Rule writing section of `.agents/GEMINI.md`: one imperative bullet per rule with its condition, plain words, no tags, rule IDs, rationale, or symbolic connectives, examples only where the rule is ambiguous without them.
+- Rule: Style Verification: Candidates use one imperative bullet per rule with its condition, in plain words, with no tags, rule IDs, rationale, or symbolic connectives; examples appear only where a rule is ambiguous without them, and exact templates (log functions, helper macros) stay verbatim as the rule.
 - Rule: No Cross-References: Candidates never name other rule files, tool names, or load orders; the platform loads rules by trigger.
 
 Step: 2. Multi-Direction Subagent Dispatch:
